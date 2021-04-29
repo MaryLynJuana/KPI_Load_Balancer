@@ -33,3 +33,21 @@ services:
       - servers
     ports:
       - "8082:8080"
+
+  client1:
+    build: .
+    command: "client --target http://balancer:8090"
+    networks:
+      - servers
+
+  client2:
+    build: .
+    command: "client --target http://balancer:8090"
+    networks:
+      - servers
+
+  client3:
+    build: .
+    command: "client --target http://balancer:8090"
+    networks:
+      - servers

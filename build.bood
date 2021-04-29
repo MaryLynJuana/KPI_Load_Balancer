@@ -23,4 +23,16 @@ go_tested_binary {
   // TODO: Додайте запуск тестів для балансувальника.
 }
 
+go_tested_binary {
+  name: "client",
+  pkg: "github.com/MaryLynJuana/KPI_Load_Balancer/cmd/client",
+  srcs: [
+    "httptools/**/*.go",
+    "signal/**/*.go",
+    "cmd/client/*.go"
+  ],
+  testPkg: "./cmd/client",
+  testSrcs: ["cmd/client/*_test.go"]
+}
+
 // TODO: Додайте модуль для інтеграційних тестів.
