@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/roman-mazur/design-practice-2-template/httptools"
-	"github.com/roman-mazur/design-practice-2-template/signal"
+	"github.com/MaryLynJuana/KPI_Load_Balancer/httptools"
+	"github.com/MaryLynJuana/KPI_Load_Balancer/signal"
 )
 
 var (
