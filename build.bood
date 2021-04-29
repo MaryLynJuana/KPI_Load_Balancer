@@ -5,7 +5,9 @@ go_tested_binary {
     "httptools/**/*.go",
     "signal/**/*.go",
     "cmd/server/*.go"
-  ]
+  ],
+  testPkg: "./cmd/server",
+  testSrcs: ["cmd/server/*_test.go"]
 }
 
 go_tested_binary {
@@ -15,7 +17,9 @@ go_tested_binary {
     "httptools/**/*.go",
     "signal/**/*.go",
     "cmd/lb/*.go"
-  ]
+  ],
+  testPkg: "./cmd/lb",
+  testSrcs: ["cmd/lb/*_test.go"]
   // TODO: Додайте запуск тестів для балансувальника.
 }
 
