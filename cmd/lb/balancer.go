@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"strconv"
+	"strings"
 
 	"github.com/MaryLynJuana/KPI_Load_Balancer/httptools"
 	"github.com/MaryLynJuana/KPI_Load_Balancer/signal"
@@ -28,6 +30,7 @@ var (
 		"server2:8080",
 		"server3:8080",
 	}
+	serverHealths = []bool{ false, false, false, }
 )
 
 func scheme() string {
@@ -84,14 +87,24 @@ func forward(dst string, rw http.ResponseWriter, r *http.Request) error {
 	}
 }
 
+func hashAddress(addr string) int {
+	ha := strings.Split(strings.Join(strings.Split(addr, "."), ""), ":")[0]
+	hs, err := strconv.Atoi(ha)
+	if (err != nil) {
+		panic(err)
+	}
+	return hs
+}
+
 func main() {
 	flag.Parse()
 
 	// TODO: Використовуйте дані про стан сервреа, щоб підтримувати список тих серверів, яким можна відправляти ззапит.
-	for _, server := range serversPool {
+	for i, server := range serversPool {
 		server := server
 		go func() {
 			for range time.Tick(10 * time.Second) {
+				serverHealths[i] = health(server)
 				log.Println(server, health(server))
 			}
 		}()
@@ -99,10 +112,13 @@ func main() {
 
 	frontend := httptools.CreateServer(*port, http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		// TODO: Рееалізуйте свій алгоритм балансувальника.
-		forward(serversPool[0], rw, r)
+		addrHash := hashAddress(r.RemoteAddr)
+		serverIndex := addrHash % len(serversPool)
+		log.Println(r.RemoteAddr)
+		forward(serversPool[serverIndex], rw, r)
 	}))
 
-	log.Println("Starting load balancer...")
+	log.Println("Starting load balancer...NYA!")
 	log.Printf("Tracing support enabled: %t", *traceEnabled)
 	frontend.Start()
 	signal.WaitForTerminationSignal()
