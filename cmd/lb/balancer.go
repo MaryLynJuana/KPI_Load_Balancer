@@ -10,6 +10,7 @@ import (
 	"time"
 	"strconv"
 	"strings"
+	"errors"
 
 	"github.com/MaryLynJuana/KPI_Load_Balancer/httptools"
 	"github.com/MaryLynJuana/KPI_Load_Balancer/signal"
@@ -106,10 +107,29 @@ func filterHealthy() []string {
 	return healthyServersPool
 }
 
+func balanceRequest(addr string) (string, error) {
+	healthyServersPool := filterHealthy()
+	if (len(healthyServersPool) == 0) {
+		return "", errors.New("No servers available")
+	}
+	addrHash := hashAddress(addr)
+	serverIndex := addrHash % len(healthyServersPool)
+	//log.Println(addr, serverIndex, healthyServersPool[serverIndex])
+	return healthyServersPool[serverIndex], nil
+}
+
+func handleRequest(rw http.ResponseWriter, r *http.Request) {
+	server, err := balanceRequest(r.RemoteAddr)
+	if (err != nil) {
+		rw.WriteHeader(http.StatusServiceUnavailable)
+		_, _ = rw.Write([]byte("FAILURE"))
+		return
+	}
+	forward(server, rw, r)
+}
+
 func main() {
 	flag.Parse()
-
-	// TODO: Використовуйте дані про стан сервреа, щоб підтримувати список тих серверів, яким можна відправляти ззапит.
 	for i, server := range serversPool {
 		server := server
 		go func() {
@@ -120,17 +140,7 @@ func main() {
 		}()
 	}
 
-	frontend := httptools.CreateServer(*port, http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		// TODO: Рееалізуйте свій алгоритм балансувальника.
-		healthyServersPool := filterHealthy()
-		if (len(healthyServersPool) == 0) {
-			rw.WriteHeader(http.StatusServiceUnavailable)
-			_, _ = rw.Write([]byte("FAILURE"))
-		}
-		addrHash := hashAddress(r.RemoteAddr)
-		serverIndex := addrHash % len(healthyServersPool)
-		forward(healthyServersPool[serverIndex], rw, r)
-	}))
+	frontend := httptools.CreateServer(*port, http.HandlerFunc(handleRequest))
 
 	log.Println("Starting load balancer...NYA!")
 	log.Printf("Tracing support enabled: %t", *traceEnabled)
