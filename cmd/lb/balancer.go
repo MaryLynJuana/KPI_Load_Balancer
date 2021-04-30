@@ -30,7 +30,7 @@ var (
 		"server2:8080",
 		"server3:8080",
 	}
-	serverHealths = []bool{ false, false, false, }
+	serverHealths = []bool{ true, true, true, }
 )
 
 func scheme() string {
@@ -96,6 +96,16 @@ func hashAddress(addr string) int {
 	return hs
 }
 
+func filterHealthy() []string {
+	healthyServersPool := []string{}
+	for i := range serversPool {
+		if (serverHealths[i] == true) {
+			healthyServersPool = append(healthyServersPool, serversPool[i])
+		}
+	}
+	return healthyServersPool
+}
+
 func main() {
 	flag.Parse()
 
@@ -112,10 +122,14 @@ func main() {
 
 	frontend := httptools.CreateServer(*port, http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		// TODO: Рееалізуйте свій алгоритм балансувальника.
+		healthyServersPool := filterHealthy()
+		if (len(healthyServersPool) == 0) {
+			rw.WriteHeader(http.StatusServiceUnavailable)
+			_, _ = rw.Write([]byte("FAILURE"))
+		}
 		addrHash := hashAddress(r.RemoteAddr)
-		serverIndex := addrHash % len(serversPool)
-		log.Println(r.RemoteAddr)
-		forward(serversPool[serverIndex], rw, r)
+		serverIndex := addrHash % len(healthyServersPool)
+		forward(healthyServersPool[serverIndex], rw, r)
 	}))
 
 	log.Println("Starting load balancer...NYA!")
