@@ -6,6 +6,7 @@ go_tested_binary {
     "signal/**/*.go",
     "cmd/server/*.go"
   ],
+  srcsExclude: ["**/*_test.go"],
   testPkg: "./cmd/server",
   testSrcs: ["cmd/server/*_test.go"]
 }
@@ -18,6 +19,7 @@ go_tested_binary {
     "signal/**/*.go",
     "cmd/lb/*.go"
   ],
+  srcsExclude: ["**/*_test.go"],
   testPkg: "./cmd/lb",
   testSrcs: ["cmd/lb/*_test.go"]
   // TODO: Додайте запуск тестів для балансувальника.
@@ -31,6 +33,7 @@ go_tested_binary {
     "signal/**/*.go",
     "cmd/client/*.go"
   ],
+  srcsExclude: ["**/*_test.go"],
   testPkg: "./cmd/client",
   testSrcs: ["cmd/client/*_test.go"]
 }
