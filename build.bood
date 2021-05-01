@@ -38,4 +38,16 @@ go_tested_binary {
   testSrcs: ["cmd/client/*_test.go"]
 }
 
-// TODO: Додайте модуль для інтеграційних тестів.
+go_tested_binary {
+  name: "integration-tests",
+  pkg: "github.com/MaryLynJuana/KPI_Load_Balancer/integration",
+  srcs: [
+    "httptools/**/*.go",
+    "signal/**/*.go",
+    "cmd/lb/*.go",
+    "cmd/server/*.go"
+  ],
+  srcsExclude: ["**/*_test.go"],
+  testPkg: "./integration",
+  testSrcs: ["integration/*_test.go"]
+}
