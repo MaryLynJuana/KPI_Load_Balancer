@@ -3,12 +3,11 @@ package integration
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 	"strconv"
-		
 	"github.com/stretchr/testify/assert"
-		
 )
 
 const baseAddress = "http://balancer:8090"
