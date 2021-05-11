@@ -1,7 +1,15 @@
 language: go
 
+dist: bionic
 go:
-  - 1.15
+- 1.15.x
+
+before_script:
+  - sudo apt-get -y install ninja-build
+  
+addons:
+  apt:
+    update: true
 
 services:
   - docker
