@@ -3,7 +3,6 @@ package integration
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"testing"
 	"time"
 	"strconv"
@@ -18,7 +17,7 @@ var client = http.Client{
 
 func TestBalancer(t *testing.T) {
 	for i := 0; i < 3; i++ {
-		route := fmt.Sprintf("%s/server%s", baseAddress, strconv.Itoa(i))
+		route := fmt.Sprintf("%s/api/v1/some-data", baseAddress)
 		resp, err := client.Get(route)
 		assert.Nil(t, err)
 		compare := resp.Header.Get("lb-from")
@@ -34,7 +33,7 @@ func BenchmarkBalancer(b *testing.B) {
 	var timeForQueries int64 = 0
 	iterations := b.N
 	for i := 0; i < 3; i++ {
-		route := fmt.Sprintf("%s/server%s", baseAddress, strconv.Itoa(i))
+		route := fmt.Sprintf("%s/api/v1/some-data", baseAddress)
 		resp, err := client.Get(route)
 		assert.Nil(b, err)
 		compare := resp.Header.Get("lb-from")

@@ -49,5 +49,6 @@ go_tested_binary {
   ],
   srcsExclude: ["**/*_test.go"],
   testPkg: "./integration",
-  testSrcs: ["integration/*_test.go"]
+  testSrcs: ["integration/*_test.go"],
+  optional: true
 }
