@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 const outFileName = "current-data"
@@ -117,10 +118,37 @@ func (db *Db) Get(key string) (string, error) {
 	return value, nil
 }
 
+func (db *Db) GetInt64(key string) (int64, error) {
+	stringVal, err := db.Get(key)
+	if err != nil {
+		return 0, err
+	}
+	value, err := strconv.ParseInt(stringVal, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("wrong type of value")
+	}
+	return value, nil
+}
+
 func (db *Db) Put(key, value string) error {
 	e := entry{
 		key:   key,
+		vtype: "string",
 		value: value,
+	}
+	n, err := db.out.Write(e.Encode())
+	if err == nil {
+		db.index[key] = db.outOffset
+		db.outOffset += int64(n)
+	}
+	return err
+}
+
+func (db *Db) PutInt64(key string, value int64) error {
+	e := entry{
+		key:   key,
+		vtype: "int64",
+		value: strconv.FormatInt(value, 10),
 	}
 	n, err := db.out.Write(e.Encode())
 	if err == nil {
