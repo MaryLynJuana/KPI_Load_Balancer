@@ -7,6 +7,7 @@ import (
 	"time"
 	"strconv"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 )
 
 const baseAddress = "http://balancer:8090"
@@ -25,6 +26,8 @@ func TestBalancer(t *testing.T) {
 		for j := 0; j < 5; j++ {
 			resp, err = client.Get(route)
 			assert.Equal(t, compare, resp.Header.Get("lb-from"))
+			body, _ := ioutil.ReadAll(resp.Body)
+			assert.NotEmpty(t, string(body))
 			assert.Nil(t, err)
 		}
 	}
