@@ -11,15 +11,17 @@ import (
 )
 
 const outFileName = "current-data"
+const segmentSize = 128
 
 var ErrNotFound = fmt.Errorf("record does not exist")
 
 type hashIndex map[string]int64
 
 type Db struct {
-	out *os.File
-	outPath string
+	out       *os.File
+	outPath   string
 	outOffset int64
+	// segments  []*os.File
 
 	index hashIndex
 }
@@ -42,6 +44,10 @@ func NewDb(dir string) (*Db, error) {
 	return db, nil
 }
 
+// func createSegment() error {
+// 	return nil
+// }
+
 const bufSize = 8192
 
 func (db *Db) recover() error {
@@ -56,7 +62,7 @@ func (db *Db) recover() error {
 	for err == nil {
 		var (
 			header, data []byte
-			n int
+			n            int
 		)
 		header, err = in.Peek(bufSize)
 		if err == io.EOF {

@@ -2,11 +2,11 @@ package datastore
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
-	"testing"
 	"strconv"
-	"log"
+	"testing"
 )
 
 func TestDb_Put(t *testing.T) {
@@ -22,13 +22,13 @@ func TestDb_Put(t *testing.T) {
 	}
 	defer db.Close()
 
-	pairs := [][]string {
+	pairs := [][]string{
 		{"key1", "value1"},
 		{"key2", "value2"},
 		{"key3", "value3"},
 	}
 
-	pairsInt64 := [][]string {
+	pairsInt64 := [][]string{
 		{"kek1", "111"},
 		{"kek2", "222"},
 		{"kek3", "333"},
@@ -110,7 +110,7 @@ func TestDb_Put(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if size1 * 2 != outInfo.Size() {
+		if size1*2 != outInfo.Size() {
 			t.Errorf("Unexpected size (%d vs %d)", size1, outInfo.Size())
 		}
 	})
@@ -130,7 +130,7 @@ func TestDb_Put(t *testing.T) {
 				t.Errorf("Cannot put %s: %s", pairs[0], err)
 			}
 			if value != pair[1] {
-				t.Errorf("Bad value returned expected %s, got %s", pair[1], value)
+				t.Errorf("Bad value returned. Expected %s, got %s", pair[1], value)
 			}
 		}
 		for _, pair := range pairsInt64 {
@@ -140,7 +140,7 @@ func TestDb_Put(t *testing.T) {
 				t.Errorf("Cannot put %s: %s", pairs[0], err)
 			}
 			if value != val {
-				t.Errorf("Bad value returned expected %s, got %s", pair[1], strconv.FormatInt(value, 10))
+				t.Errorf("Bad value returned. Expected %s, got %s", pair[1], strconv.FormatInt(value, 10))
 			}
 		}
 	})
