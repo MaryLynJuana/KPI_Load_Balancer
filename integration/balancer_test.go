@@ -7,7 +7,6 @@ import (
 	"time"
 	"strconv"
 	"github.com/stretchr/testify/assert"
-	"log"
 )
 
 const baseAddress = "http://balancer:8090"
