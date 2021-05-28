@@ -7,9 +7,11 @@ import (
 	"time"
 	"strconv"
 	"github.com/stretchr/testify/assert"
+	"log"
 )
 
 const baseAddress = "http://balancer:8090"
+const key = "oymate"
 
 var client = http.Client{
 	Timeout: 3 * time.Second,
@@ -17,7 +19,7 @@ var client = http.Client{
 
 func TestBalancer(t *testing.T) {
 	for i := 0; i < 3; i++ {
-		route := fmt.Sprintf("%s/api/v1/some-data", baseAddress)
+		route := fmt.Sprintf("%s/api/v1/some-data?key=%s", baseAddress, key)
 		resp, err := client.Get(route)
 		assert.Nil(t, err)
 		compare := resp.Header.Get("lb-from")
@@ -33,7 +35,7 @@ func BenchmarkBalancer(b *testing.B) {
 	var timeForQueries int64 = 0
 	iterations := b.N
 	for i := 0; i < 3; i++ {
-		route := fmt.Sprintf("%s/api/v1/some-data", baseAddress)
+		route := fmt.Sprintf("%s/api/v1/some-data?key=%s", baseAddress, key)
 		resp, err := client.Get(route)
 		assert.Nil(b, err)
 		compare := resp.Header.Get("lb-from")

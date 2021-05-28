@@ -26,6 +26,19 @@ go_tested_binary {
 }
 
 go_tested_binary {
+  name: "db",
+  pkg: "github.com/MaryLynJuana/KPI_Load_Balancer/cmd/db",
+  srcs: [
+    "httptools/**/*.go",
+    "signal/**/*.go",
+    "cmd/db/*.go"
+  ],
+  srcsExclude: ["**/*_test.go"],
+  testPkg: "./cmd/db",
+  testSrcs: ["cmd/db/*_test.go"]
+}
+
+go_tested_binary {
   name: "client",
   pkg: "github.com/MaryLynJuana/KPI_Load_Balancer/cmd/client",
   srcs: [
