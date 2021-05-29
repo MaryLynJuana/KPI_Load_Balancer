@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 	"testing"
 )
@@ -34,7 +33,7 @@ func TestDb_Put(t *testing.T) {
 		{"kek3", "333"},
 	}
 
-	outFile, err := os.Open(filepath.Join(dir, outFileName))
+	outFile, err := os.Open(db.segments[0].file.Name())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +49,7 @@ func TestDb_Put(t *testing.T) {
 				t.Errorf("Cannot get %s: %s", pairs[0], err)
 			}
 			if value != pair[1] {
-				t.Errorf("Bad value returned expected %s, got %s", pair[1], value)
+				t.Errorf("Bad value returned. Expected %s, got %s", pair[1], value)
 			}
 		}
 	})
@@ -70,7 +69,7 @@ func TestDb_Put(t *testing.T) {
 				t.Errorf("Cannot get %s: %s", pairs[0], err)
 			}
 			if value != val {
-				t.Errorf("Bad value returned expected %s, got %s", pair[1], strconv.FormatInt(value, 10))
+				t.Errorf("Bad value returned. Expected %s, got %s", pair[1], strconv.FormatInt(value, 10))
 			}
 		}
 	})
@@ -127,17 +126,17 @@ func TestDb_Put(t *testing.T) {
 		for _, pair := range pairs {
 			value, err := db.Get(pair[0])
 			if err != nil {
-				t.Errorf("Cannot put %s: %s", pairs[0], err)
+				t.Errorf("Cannot get %s: %s", pairs[0], err)
 			}
 			if value != pair[1] {
 				t.Errorf("Bad value returned. Expected %s, got %s", pair[1], value)
 			}
 		}
 		for _, pair := range pairsInt64 {
-			val, err := strconv.ParseInt(pair[1], 10, 64)
+			val, _ := strconv.ParseInt(pair[1], 10, 64)
 			value, err := db.GetInt64(pair[0])
 			if err != nil {
-				t.Errorf("Cannot put %s: %s", pairs[0], err)
+				t.Errorf("Cannot get %s: %s", pairs[0], err)
 			}
 			if value != val {
 				t.Errorf("Bad value returned. Expected %s, got %s", pair[1], strconv.FormatInt(value, 10))
