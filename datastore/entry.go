@@ -43,6 +43,9 @@ func (e *entry) Decode(input []byte) {
 	e.value = string(valBuf)
 }
 
+// Reads the value in the file based on the headers
+// containing the size of key, type, and value put there
+// by `Encode()`
 func readValue(in *bufio.Reader) (string, error) {
 	header, err := in.Peek(8)
 	if err != nil {
