@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"strconv"
+	"log"
 )
 
 var (
@@ -68,6 +70,34 @@ func TestDb_Put(t *testing.T) {
 		}
 	})
 
+	t.Run("putInt64/getInt64", func(t *testing.T) {
+		for _, pair := range pairsInt64 {
+			val, err := strconv.ParseInt(pair[1], 10, 64)
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = db.PutInt64(pair[0], val)
+			if err != nil {
+				t.Errorf("Cannot put %s: %s", pairs[0], err)
+			}
+			value, err := db.GetInt64(pair[0])
+			if err != nil {
+				t.Errorf("Cannot get %s: %s", pairs[0], err)
+			}
+			if value != val {
+				t.Errorf("Bad value returned expected %s, got %s", pair[1], strconv.FormatInt(value, 10))
+			}
+		}
+	})
+
+	t.Run("getInt64wrongtype", func(t *testing.T) {
+		notInt64pair := pairs[0]
+		res, err := db.GetInt64(notInt64pair[0])
+		if err == nil {
+			t.Errorf("Expected error for key %s, but got %s", notInt64pair[0], strconv.FormatInt(res, 10))
+		}
+	})
+
 	outInfo, err := outFile.Stat()
 	if err != nil {
 		t.Fatal(err)
@@ -81,6 +111,16 @@ func TestDb_Put(t *testing.T) {
 	t.Run("file growth", func(t *testing.T) {
 		for _, pair := range pairs {
 			err := db.Put(pair[0], pair[1])
+			if err != nil {
+				t.Errorf("Cannot put %s: %s", pairs[0], err)
+			}
+		}
+		for _, pair := range pairsInt64 {
+			val, err := strconv.ParseInt(pair[1], 10, 64)
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = db.PutInt64(pair[0], val)
 			if err != nil {
 				t.Errorf("Cannot put %s: %s", pairs[0], err)
 			}
@@ -110,6 +150,16 @@ func TestDb_Put(t *testing.T) {
 			}
 			if value != pair[1] {
 				t.Errorf("Bad value returned expected %s, got %s", pair[1], value)
+			}
+		}
+		for _, pair := range pairsInt64 {
+			val, err := strconv.ParseInt(pair[1], 10, 64)
+			value, err := db.GetInt64(pair[0])
+			if err != nil {
+				t.Errorf("Cannot put %s: %s", pairs[0], err)
+			}
+			if value != val {
+				t.Errorf("Bad value returned expected %s, got %s", pair[1], strconv.FormatInt(value, 10))
 			}
 		}
 	})

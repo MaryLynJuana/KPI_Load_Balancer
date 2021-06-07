@@ -246,9 +246,27 @@ func (s *segment) get(key string) (string, error) {
 	return value, nil
 }
 
+func (db *Db) GetInt64(key string) (int64, error) {
+	db.mux.Lock()
+	defer db.mux.Unlock()
+	var err error
+
+	for _, segment := range db.segments {
+		if stringVal, err := segment.get(key); err == nil {
+			value, err := strconv.ParseInt(stringVal, 10, 64)
+			if err != nil {
+				return 0, fmt.Errorf("wrong type of value")
+			}
+			return value, nil
+		}
+	}
+
+	return 0, err
+}
+
 func (db *Db) Put(key, value string) error {
 	responseChan := make(chan error)
-	e := &entry{key: key, value: value}
+	e := &entry{key: key, vtype: "string", value: value}
 
 	db.putChan <- putEntry{entry: e, responseChan: responseChan}
 	res := <-responseChan
@@ -379,4 +397,13 @@ func (db *Db) merge() {
 	for _, s := range segments {
 		os.Remove(s.path)
 	}
+}
+
+func (db *Db) PutInt64(key string, value int64) error {
+	responseChan := make(chan error)
+	e := &entry{key: key, vtype: "int64", value: strconv.FormatInt(value, 10)}
+
+	db.putChan <- putEntry{entry: e, responseChan: responseChan}
+	res := <-responseChan
+	return res
 }
