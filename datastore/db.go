@@ -247,20 +247,26 @@ func (s *segment) get(key string) (string, error) {
 }
 
 func (db *Db) GetInt64(key string) (int64, error) {
-	stringVal, err := db.Get(key)
-	if err != nil {
-		return 0, err
+	db.mux.Lock()
+	defer db.mux.Unlock()
+	var err error
+
+	for _, segment := range db.segments {
+		if stringVal, err := segment.get(key); err == nil {
+			value, err := strconv.ParseInt(stringVal, 10, 64)
+			if err != nil {
+				return 0, fmt.Errorf("wrong type of value")
+			}
+			return value, nil
+		}
 	}
-	value, err := strconv.ParseInt(stringVal, 10, 64)
-	if err != nil {
-		return 0, fmt.Errorf("wrong type of value")
-	}
-	return value, nil
+
+	return 0, err
 }
 
 func (db *Db) Put(key, value string) error {
 	responseChan := make(chan error)
-	e := &entry{key: key, value: value}
+	e := &entry{key: key, vtype: "string", value: value}
 
 	db.putChan <- putEntry{entry: e, responseChan: responseChan}
 	res := <-responseChan
@@ -394,15 +400,10 @@ func (db *Db) merge() {
 }
 
 func (db *Db) PutInt64(key string, value int64) error {
-	e := entry{
-		key:   key,
-		vtype: "int64",
-		value: strconv.FormatInt(value, 10),
-	}
-	n, err := db.out.Write(e.Encode())
-	if err == nil {
-		db.index[key] = db.outOffset
-		db.outOffset += int64(n)
-	}
-	return err
+	responseChan := make(chan error)
+	e := &entry{key: key, vtype: "int64", value: strconv.FormatInt(value, 10)}
+
+	db.putChan <- putEntry{entry: e, responseChan: responseChan}
+	res := <-responseChan
+	return res
 }
